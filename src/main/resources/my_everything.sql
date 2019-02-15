@@ -1,7 +1,7 @@
 -- 创建数据库
-create database if not exists my_everything;
+-- create database if not exists my_everything;
 -- 创建数据库表
-drop table if exists file_index;
+-- drop table if exists file_index;
 create table if not exists file_index(
   name varchar(256) not null comment '文件名称',
   path varchar(1025) not null comment '文件路径',

@@ -22,13 +22,27 @@ public enum FileType {
     }
 
     /**
-     * g根据文件扩展名获取文件类型
+     * 根据文件扩展名获取文件类型
      * @param extend
      * @return
      */
     public static FileType lookup(String extend){
         for(FileType fileType : FileType.values()){
             if(fileType.extend.contains(extend)){
+                return fileType;
+            }
+        }
+        return FileType.OTHER;
+    }
+
+    /**
+     * 根据文件类型名（String）获取文件类型对象
+     * @param name
+     * @return
+     */
+    public static FileType lookupByName(String name){
+        for(FileType fileType : FileType.values()){
+            if(fileType.name().equals(name)){
                 return fileType;
             }
         }
