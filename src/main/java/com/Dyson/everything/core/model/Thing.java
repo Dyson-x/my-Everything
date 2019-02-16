@@ -14,7 +14,7 @@ public class Thing {
      */
     private String name;
     /**
-     * w文件路径
+     * 文件路径
      */
     private String path;
     /**

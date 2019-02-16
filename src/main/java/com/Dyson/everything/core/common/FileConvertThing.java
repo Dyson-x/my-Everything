@@ -7,7 +7,6 @@ import java.io.File;
 
 /**
  * 辅助工具类:将file对象转为thing对象
- *
  * @author Dyson
  * @date 2019/2/15 18:33
  */

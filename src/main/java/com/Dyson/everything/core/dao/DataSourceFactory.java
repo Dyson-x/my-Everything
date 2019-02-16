@@ -58,14 +58,16 @@ public class DataSourceFactory {
     //嵌入式数据库在创建数据源时，最终呈现在系统中是以本地文件的方式
     /**
      * 数据源的初始化
+     * 1.获取数据源
+     * 2.通过流获取SQL语句
+     * 3.获取数据库连接
      */
     public static void initDatabase() {
         //1.获取数据源
         DataSource dataSource = DataSourceFactory.dataSource();
         //可以通过文件的绝对路径，但是不采用读取绝对路径文件，这样只会识别本电脑上的路径
 
-
-        //JDK1.7  使用try-with-resources自动关闭流
+        //JDK1.7 提供使用try-with-resources自动关闭流资源
 
         //采取读取classpath路径下文件
         //当做一个类去读，在classPath下通过classLoder下载
@@ -81,6 +83,7 @@ public class DataSourceFactory {
                 String line = null;
 
                 while ((line = Reader.readLine()) != null) {
+                    //去掉数据库注释语句
                     if (!line.startsWith("--")) {
                         sqlBuilder.append(line);
                     }

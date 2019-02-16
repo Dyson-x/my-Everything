@@ -16,7 +16,6 @@ import java.util.List;
 
 /**
  * 业务层数据库的CRUD具体实现
- *
  * @author Dyson
  * @date 2019/2/15 16:37
  */
@@ -50,6 +49,7 @@ public class FileIndexDaoImpl implements FileIndexDao {
             // 放在类的属性上去时就可能会被多线程访问，必须使用StringBuffer
             StringBuilder sqlBuilder=new StringBuilder();
             sqlBuilder.append(" select name, path, depth, file_type from file_index ");
+            //前后模糊查询
             sqlBuilder.append(" where ").
                     append(" name like '%").
                     append(condition.getName()).
@@ -60,21 +60,26 @@ public class FileIndexDaoImpl implements FileIndexDao {
                         append(condition.getFileType().toUpperCase()).
                         append("' ");
             }
-            sqlBuilder.append(" order by depth ").
-                    append(condition.getOrderByAsc()?"asc":"desc").
-                    append(" limit ").
-                    append(condition.getLimit()).
-                    append(" offset 0 ");
-            System.out.println(sqlBuilder);
+            //显示数量，排序方式
+            //limit, order必选的
+            if (condition.getOrderByAsc() != null) {
+                sqlBuilder.append(" order by depth ")
+                        .append(condition.getOrderByAsc() ? "asc" : "desc");
+            }
+            if (condition.getLimit() != null) {
+                sqlBuilder.append(" limit ")
+                        .append(condition.getLimit())
+                        .append(" offset 0 ");
+            }
+            //System.out.println(sqlBuilder);
             //3.准备命令
             statement = connection.prepareStatement(sqlBuilder.toString());
             //4.采用预编译命令，需要设置参数
 
             //5.执行查询命令
             resultSet = statement.executeQuery();
-            //6.处理结果
+            //6.处理结果：将数据库的行记录变成 java中的对象（Thing）
             while (resultSet.next()) {
-                //将数据库的行记录变成 java中的对象（Thing）
                 Thing thing = new Thing();
                 thing.setName(resultSet.getString("name"));
                 thing.setPath(resultSet.getString("path"));
@@ -118,7 +123,7 @@ public class FileIndexDaoImpl implements FileIndexDao {
             releaseResource(null,statement,connection);
         }
     }
-    //解决内部代码大量重复问题
+    //解决内部代码大量重复问题，关闭流资源
     private void releaseResource(ResultSet resultSet, PreparedStatement statement, Connection connection) {
         if (resultSet != null) {
             try {
