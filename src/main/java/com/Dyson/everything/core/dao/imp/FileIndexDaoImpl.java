@@ -123,6 +123,30 @@ public class FileIndexDaoImpl implements FileIndexDao {
             releaseResource(null,statement,connection);
         }
     }
+
+    @Override
+    public void delete(Thing thing) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        try {
+            //1.获取数据库连接
+            connection = dataSource.getConnection();
+            //2.准备SQL语句  按照以路径前缀开头的文件全部删除
+            String sql = "delete from file_index where path like '"+thing.getPath()+"%'";
+            //3.准备命令
+            statement = connection.prepareStatement(sql);
+            //4.采用预编译命令，需要设置参数
+            statement.setString(1, thing.getPath());
+            //将枚举名称存储进去
+            //5.执行更新命令
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            releaseResource(null,statement,connection);
+        }
+    }
+
     //解决内部代码大量重复问题，关闭流资源
     private void releaseResource(ResultSet resultSet, PreparedStatement statement, Connection connection) {
         if (resultSet != null) {

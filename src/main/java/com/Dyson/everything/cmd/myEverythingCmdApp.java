@@ -27,6 +27,8 @@ public class myEverythingCmdApp {
         //减少耦合，方便代码修改与管理
         myEverythingManager manager = myEverythingManager.getInstance();
 
+        //启动后台清理线程
+        manager.startbackgroundClearThread();
         //交互式
         interactive(manager);
 

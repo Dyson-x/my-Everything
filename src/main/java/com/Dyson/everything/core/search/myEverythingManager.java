@@ -6,20 +6,24 @@ import com.Dyson.everything.core.dao.FileIndexDao;
 import com.Dyson.everything.core.dao.imp.FileIndexDaoImpl;
 import com.Dyson.everything.core.index.FileScan;
 import com.Dyson.everything.core.index.impl.FileScanImpl;
+import com.Dyson.everything.core.interceptor.ThingInterceptor;
 import com.Dyson.everything.core.interceptor.impl.FileIndexInterceptor;
-import com.Dyson.everything.core.interceptor.impl.FilePrintIntercetor;
+import com.Dyson.everything.core.interceptor.impl.ThingClearInterceptor;
 import com.Dyson.everything.core.model.Condition;
 import com.Dyson.everything.core.model.Thing;
 import com.Dyson.everything.core.search.impl.FileSearchImpl;
 
 import javax.sql.DataSource;
+import java.io.File;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * @author Dyson
@@ -35,6 +39,12 @@ public class myEverythingManager {
     //线程池
     private ExecutorService executorService;
 
+    //Thing拦截器
+    //清理删除的文件
+    private ThingClearInterceptor thingClearInterceptor;
+    private Thread backgroundClearThread=new Thread(this.thingClearInterceptor);
+    private AtomicBoolean backgroundClearThreadStatus=new AtomicBoolean(false);
+
     public myEverythingManager() {
         this.initComponent();
     }
@@ -43,7 +53,7 @@ public class myEverythingManager {
     private void initComponent() {
         //数据源对象
         DataSource dataSource = DataSourceFactory.dataSource();
-        //检出数据库
+        //初始化数据库
         initOrResetDatabase();
         //业务层对象
         FileIndexDao fileIndexDao = new FileIndexDaoImpl(dataSource);
@@ -52,6 +62,10 @@ public class myEverythingManager {
         //添加拦截器
         //this.fileScan.interceptor(new FilePrintIntercetor());
         this.fileScan.interceptor(new FileIndexInterceptor(fileIndexDao));
+        this.thingClearInterceptor=new ThingClearInterceptor(fileIndexDao);
+        this.backgroundClearThread.setName("Thing-thred-clear");
+        //清理线程设置成守护线程
+        this.backgroundClearThread.setDaemon(true);
     }
     //检查并初始化数据库
     private void initOrResetDatabase() {
@@ -79,7 +93,19 @@ public class myEverythingManager {
      * 检索
      */
     public List<Thing> search(Condition condition) {
-        return this.fileSearch.search(condition);
+        //TODO  扩展
+        //如果文件不存在将其清除，通过Stream流式方式  JDK8
+        return this.fileSearch.search(condition)
+                .stream().filter(thing -> {
+            String path=thing.getPath();
+            File file=new File(path);
+            boolean flag=file.exists();
+            if(!flag){
+                //删除
+                thingClearInterceptor.apply(thing);
+            }
+            return flag;
+        }).collect(Collectors.toList());
     }
 
     /**
@@ -125,5 +151,16 @@ public class myEverythingManager {
             e.printStackTrace();
         }
         System.out.println("Build index complete...");
+    }
+
+    /**
+     * 启动清理线程
+     */
+    public void startbackgroundClearThread(){
+        if(this.backgroundClearThreadStatus.compareAndSet(false,true)){
+            this.backgroundClearThread.start();
+        }else {
+            System.out.println("BackgroundClearThrad has start");
+        }
     }
 }
