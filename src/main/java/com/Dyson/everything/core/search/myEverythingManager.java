@@ -6,6 +6,8 @@ import com.Dyson.everything.core.dao.FileIndexDao;
 import com.Dyson.everything.core.dao.imp.FileIndexDaoImpl;
 import com.Dyson.everything.core.index.FileScan;
 import com.Dyson.everything.core.index.impl.FileScanImpl;
+import com.Dyson.everything.core.interceptor.impl.FileIndexInterceptor;
+import com.Dyson.everything.core.interceptor.impl.FilePrintIntercetor;
 import com.Dyson.everything.core.model.Condition;
 import com.Dyson.everything.core.model.Thing;
 import com.Dyson.everything.core.search.impl.FileSearchImpl;
@@ -41,10 +43,23 @@ public class myEverythingManager {
     private void initComponent() {
         //数据源对象
         DataSource dataSource = DataSourceFactory.dataSource();
+        //检出数据库
+        initOrResetDatabase();
         //业务层对象
         FileIndexDao fileIndexDao = new FileIndexDaoImpl(dataSource);
         this.fileSearch = new FileSearchImpl(fileIndexDao);
         this.fileScan = new FileScanImpl();
+        //添加拦截器
+        //this.fileScan.interceptor(new FilePrintIntercetor());
+        this.fileScan.interceptor(new FileIndexInterceptor(fileIndexDao));
+    }
+    //检查并初始化数据库
+    private void initOrResetDatabase() {
+        //获取当前目录
+        //TODO
+
+        DataSourceFactory.initDatabase();
+
     }
 
     //获取实例化对象
@@ -71,6 +86,7 @@ public class myEverythingManager {
      * 索引
      */
     public void buildIndex() {
+        initOrResetDatabase();
         //获取遍历文件路径
         Set<String> directories = myEverythingConfig.getInstance().getIncludePath();
         if (this.executorService == null) {
@@ -91,13 +107,11 @@ public class myEverythingManager {
         final CountDownLatch countDownLatch = new CountDownLatch(directories.size());
         System.out.println("Build index start ...");
         for (String path : directories) {
-            this.executorService.submit(new Runnable() {
-                @Override
-                public void run() {
-                    myEverythingManager.this.fileScan.index(path);
-                    //每当一个线程工作完成后，数目-1
-                    countDownLatch.countDown();
-                }
+            //lambda表达式
+            this.executorService.submit(() -> {
+                myEverythingManager.this.fileScan.index(path);
+                //每当一个线程工作完成后，数目-1
+                countDownLatch.countDown();
             });
         }
 
@@ -105,7 +119,6 @@ public class myEverythingManager {
          * 阻塞，直至所有任务完成
          */
         //阻塞式等待
-
         try {
             countDownLatch.await();
         } catch (InterruptedException e) {

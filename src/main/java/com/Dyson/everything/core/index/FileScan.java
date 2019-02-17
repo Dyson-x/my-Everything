@@ -33,14 +33,15 @@ public interface FileScan {
      * @param interceptor
      */
     void interceptor(FileInterceptor interceptor);
-    public static void main(String[] args) {
-        //测试
-        FileScanImpl scan = new FileScanImpl();
-        FileInterceptor printIntercetor = new FilePrintIntercetor();
-        scan.interceptor(printIntercetor);
-        FileIndexInterceptor fileIndexInterceptor=new FileIndexInterceptor(new FileIndexDaoImpl(DataSourceFactory.dataSource()));
-        scan.interceptor(fileIndexInterceptor);
-        scan.index("C:\\Users\\Administrator\\Desktop");
 
-    }
+//    public static void main(String[] args) {
+//        //测试
+//        FileScanImpl scan = new FileScanImpl();
+//        FileInterceptor printIntercetor = new FilePrintIntercetor();
+//        scan.interceptor(printIntercetor);
+//        FileIndexInterceptor fileIndexInterceptor=new FileIndexInterceptor(new FileIndexDaoImpl(DataSourceFactory.dataSource()));
+//        scan.interceptor(fileIndexInterceptor);
+//        scan.index("C:\\Users\\Administrator\\Desktop");
+//
+//    }
 }

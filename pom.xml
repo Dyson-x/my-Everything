@@ -10,7 +10,7 @@
     <!--打包格式jar-->
     <packaging>jar</packaging>
     <!--项目名称-->
-    <name>everything-plus</name>
+    <name>my-everything</name>
     <!--项目描述-->
     <description>这是一个很不错的Everything的Java版工具</description>
     <!--开发者信息-->
@@ -29,6 +29,7 @@
     <!--属性信息-->
     <properties>
         <encoding>UTF-8</encoding>
+        <!--1.8所支持语法：tyt-with-resource自动关闭流，lambda表达式，Stream流，方法引用函数接口等-->
         <java.version>1.8</java.version>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.compiler.source>${java.version}</maven.compiler.source>
@@ -50,14 +51,13 @@
             <artifactId>h2</artifactId>
             <version>1.4.197</version>
         </dependency>
-        <!--数据库的连接池（目的：提高数据库访问效率）-->
+        <!--线程池：数据库的连接池（目的：提高数据库访问效率）-->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
             <version>1.0.23</version>
         </dependency>
     </dependencies>
-
     <!--配置构建的信息-->
     <build>
         <plugins>
@@ -67,6 +67,28 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
             </plugin>
+            <!--依赖管理插件-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.1.1</version>
+                <executions>
+                    <execution>
+                        <!--拷贝依赖，指定在打包阶段执行-->
+                        <id>copy</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <!--指定输出目录，自动创建-->
+                            <outputDirectory>
+                                ${project.build.directory}/lib
+                            </outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <!--打包插件-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -75,13 +97,15 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <!--配置主类-->
-                            <mainClass>com.bittech.everything.cmd.EverythingPlusCmdApp</mainClass>
+                            <addClasspath>true</addClasspath>
+                            <!--添加classPath-->
+                            <classpathPrefix>lib</classpathPrefix>
+                            <!--配置主类：只有配置了主类的jar包才能通过java -jar命令去执行-->
+                            <mainClass>com.Dyson.everything.cmd.myEverythingCmdApp</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
 </project>

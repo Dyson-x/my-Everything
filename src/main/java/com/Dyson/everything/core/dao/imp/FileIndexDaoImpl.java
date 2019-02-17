@@ -147,25 +147,25 @@ public class FileIndexDaoImpl implements FileIndexDao {
             }
         }
     }
-    public static void main(String[] args) {
-        FileIndexDao fileIndexDao = new FileIndexDaoImpl(DataSourceFactory.dataSource());
-        DataSourceFactory.initDatabase();
-        Thing thing = new Thing();
-        thing.setName("Dyson-x");
-        thing.setPath("D:\\a\\b\\c\\Dyson-x.ppt");
-        thing.setDepth(4);
-        thing.setFileType(FileType.DOC);
-        fileIndexDao.insert(thing);
-
-        Condition condition=new Condition();
-        condition.setName("Dyso");
-        condition.setLimit(2);
-        condition.setOrderByAsc(true);
-        //condition.setFileType("IMG");
-        //接受查询内容
-        List<Thing> things = fileIndexDao.search(condition);
-        for (Thing t : things) {
-            System.out.println(t);
-        }
-    }
+//    public static void main(String[] args) {
+//        FileIndexDao fileIndexDao = new FileIndexDaoImpl(DataSourceFactory.dataSource());
+//        DataSourceFactory.initDatabase();
+//        Thing thing = new Thing();
+//        thing.setName("Dyson-x");
+//        thing.setPath("D:\\a\\b\\c\\Dyson-x.ppt");
+//        thing.setDepth(4);
+//        thing.setFileType(FileType.DOC);
+//        fileIndexDao.insert(thing);
+//
+//        Condition condition=new Condition();
+//        condition.setName("Dyso");
+//        condition.setLimit(2);
+//        condition.setOrderByAsc(true);
+//        //condition.setFileType("IMG");
+//        //接受查询内容
+//        List<Thing> things = fileIndexDao.search(condition);
+//        for (Thing t : things) {
+//            System.out.println(t);
+//        }
+//    }
 }

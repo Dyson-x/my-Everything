@@ -1,5 +1,6 @@
 package com.Dyson.everything.core.dao;
 
+import com.Dyson.everything.config.myEverythingConfig;
 import com.Dyson.everything.core.model.Condition;
 import com.alibaba.druid.pool.DruidDataSource;
 
@@ -11,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
+ * 数据源
  * @author Dyson
  * @date 2019/2/14 12:18
  */
@@ -39,7 +41,7 @@ public class DataSourceFactory {
                     //JDBC 规范中关于MySQL jdbc:mysql://ip:port/databaseName
 
                     //获取当前目录
-                    String workDir = System.getProperty("user.dir");
+                    //String workDir = System.getProperty("user.dir");
 
                     //JDBC规范中关于h2  jbbc:h2:filepath ->存储到本地文件
                     //JDBC规范中关于h2  jdbc:h2:~/filepath ->存储到当前用户的home目录
@@ -47,7 +49,7 @@ public class DataSourceFactory {
 
                     //在嵌入式会自动将你指定的目录最后的文件名当做数据库的名字
                     //在建表的时候就可以将建表语句注释掉
-                    dataSource.setUrl("jdbc:h2:" + workDir + File.separator + "my_everything");
+                    dataSource.setUrl("jdbc:h2:"+myEverythingConfig.getInstance().getH2IndexPath());
                     dataSource.setTestWhileIdle(false);
                 }
             }
@@ -104,11 +106,10 @@ public class DataSourceFactory {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
-    public static void main(String[] args) {
-        DataSourceFactory.initDatabase();
-        //System.out.println(DataSourceFactory.dataSource());
-    }
+//    public static void main(String[] args) {
+//        DataSourceFactory.initDatabase();
+//        //System.out.println(DataSourceFactory.dataSource());
+//    }
 }

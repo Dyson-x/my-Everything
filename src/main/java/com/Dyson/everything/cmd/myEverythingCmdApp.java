@@ -1,8 +1,10 @@
 package com.Dyson.everything.cmd;
 
 import com.Dyson.everything.core.model.Condition;
+import com.Dyson.everything.core.model.Thing;
 import com.Dyson.everything.core.search.myEverythingManager;
 
+import java.util.List;
 import java.util.Scanner;
 
 import static java.lang.Thread.sleep;
@@ -90,12 +92,8 @@ public class myEverythingCmdApp {
 
     private static void index(myEverythingManager manager) {
         //通过匿名创建线程
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                manager.buildIndex();
-            }
-        }).start();
+        //方法引用
+        new Thread(manager::buildIndex).start();
     }
 
     private static void quit() {
@@ -110,7 +108,12 @@ public class myEverythingCmdApp {
 
     private static void search(myEverythingManager manger,Condition condition) {
         //统一调度器中调度search
-        manger.search(condition);
+        //manger.search(condition);
+        //输出搜索结果路径
+        List<Thing> thingList=manger.search(condition);
+        for(Thing thing:thingList){
+            System.out.println(thing.getPath());
+        }
     }
 
     private static void help() {

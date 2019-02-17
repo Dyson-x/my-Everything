@@ -23,17 +23,17 @@ public interface FileSearch {
      */
     List<Thing> search(Condition condition);
 
-    public static void main(String[] args) {
-        DataSourceFactory.initDatabase();
-        Condition condition=new Condition();
-        condition.setLimit(10);
-        condition.setName("test");
-        condition.setOrderByAsc(true);
-        FileSearch fileSearch=new FileSearchImpl(new FileIndexDaoImpl(DataSourceFactory.dataSource()));
-        List<Thing> things=fileSearch.search(condition);
-        for(Thing thing:things){
-            System.out.println(thing);
-        }
-    }
+//    public static void main(String[] args) {
+//        DataSourceFactory.initDatabase();
+//        Condition condition=new Condition();
+//        condition.setLimit(10);
+//        condition.setName("test");
+//        condition.setOrderByAsc(true);
+//        FileSearch fileSearch=new FileSearchImpl(new FileIndexDaoImpl(DataSourceFactory.dataSource()));
+//        List<Thing> things=fileSearch.search(condition);
+//        for(Thing thing:things){
+//            System.out.println(thing);
+//        }
+//    }
 
 }
