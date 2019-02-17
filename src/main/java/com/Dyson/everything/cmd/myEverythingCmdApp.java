@@ -45,7 +45,6 @@ public class myEverythingCmdApp {
      */
     private static void parseParams(String[] args) {
         myEverythingConfig config = myEverythingConfig.getInstance();
-
         for (String param : args) {
             String maxReturnParam = "--maxReturn=";
             if (param.startsWith(maxReturnParam)) {
@@ -65,10 +64,10 @@ public class myEverythingCmdApp {
                 int index = param.indexOf("=");
                 //获取用户指定参数
                 String deptOrderByAscStr = param.substring(index + 1);
-                config.setDeptOrder(Boolean.parseBoolean(deptOrderByAscStr));
+                config.setDeptOrderAsc(Boolean.parseBoolean(deptOrderByAscStr));
             }
             String includePathParam = "--includePath=";
-            if (param.startsWith(maxReturnParam)) {
+            if (param.startsWith(includePathParam)) {
                 int index = param.indexOf("=");
                 //获取用户指定参数
                 String includePathStr = param.substring(index + 1);
@@ -82,7 +81,7 @@ public class myEverythingCmdApp {
                 }
             }
             String excludePathParam = "--excludePath=";
-            if (param.startsWith(includePathParam)) {
+            if (param.startsWith(excludePathParam)) {
                 int index = param.indexOf("=");
                 //获取用户指定参数
                 String mexcludePathStr = param.substring(index + 1);
@@ -124,7 +123,7 @@ public class myEverythingCmdApp {
                     }
                     //检索输入信息
                     //TODO
-                    search(manager, condition);
+                    search(manager,condition);
                     continue;
                 } else {
                     help();
@@ -172,8 +171,8 @@ public class myEverythingCmdApp {
         //manger.search(condition);
         //输出搜索结果路径
         condition.setLimit(myEverythingConfig.getInstance().getMaxReturn());
-        condition.setOrderByAsc(myEverythingConfig.getInstance().getDeptOrder());
-        System.out.println(condition.toString());
+        condition.setOrderByAsc(myEverythingConfig.getInstance().getDeptOrderAsc());
+//        System.out.println(condition.toString());
         List<Thing> thingList = manger.search(condition);
         for (Thing thing : thingList) {
             System.out.println(thing.getPath());

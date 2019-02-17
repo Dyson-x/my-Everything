@@ -45,7 +45,7 @@ public class myEverythingConfig {
      * order by dept asc limit 30 offset
      */
     @Setter
-    private Boolean deptOrder = true;
+    private Boolean deptOrderAsc = true;
 
     private myEverythingConfig() {
 
