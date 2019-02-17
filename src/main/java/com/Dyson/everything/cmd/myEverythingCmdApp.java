@@ -172,7 +172,7 @@ public class myEverythingCmdApp {
         //输出搜索结果路径
         condition.setLimit(myEverythingConfig.getInstance().getMaxReturn());
         condition.setOrderByAsc(myEverythingConfig.getInstance().getDeptOrderAsc());
-//        System.out.println(condition.toString());
+        System.out.println(condition.toString());
         List<Thing> thingList = manger.search(condition);
         for (Thing thing : thingList) {
             System.out.println(thing.getPath());
