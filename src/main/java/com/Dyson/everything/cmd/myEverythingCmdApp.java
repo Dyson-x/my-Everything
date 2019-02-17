@@ -1,5 +1,6 @@
 package com.Dyson.everything.cmd;
 
+import com.Dyson.everything.config.myEverythingConfig;
 import com.Dyson.everything.core.model.Condition;
 import com.Dyson.everything.core.model.Thing;
 import com.Dyson.everything.core.search.myEverythingManager;
@@ -18,7 +19,8 @@ public class myEverythingCmdApp {
     private static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        //调度处理
+        //解析用户参数
+        parseParams(args);
 
         //欢迎界面
         welcome();
@@ -34,6 +36,63 @@ public class myEverythingCmdApp {
 
         System.out.println("这里是my-Everything应用程序的命令行交互程序");
 
+    }
+
+    /**
+     * 处理参数
+     * 如果用户指定参数格式不正确，使用默认值即可
+     * @param args
+     */
+    private static void parseParams(String[] args) {
+        myEverythingConfig config = myEverythingConfig.getInstance();
+
+        for (String param : args) {
+            String maxReturnParam = "--maxReturn=";
+            if (param.startsWith(maxReturnParam)) {
+                int index = param.indexOf("=");
+                //获取用户指定参数
+                String maxReturnStr = param.substring(index + 1);
+                try {
+                    //如果用户指定参数格式不正确，直接使用默认参数即可
+                    int maxReturn = Integer.parseInt(maxReturnStr);
+                    config.setMaxReturn(maxReturn);
+                } catch (NumberFormatException e) {
+                    //使用默认值即可
+                }
+            }
+            String deptOrderByAscParam = "--deptOrderByAsc=";
+            if (param.startsWith(deptOrderByAscParam)) {
+                int index = param.indexOf("=");
+                //获取用户指定参数
+                String deptOrderByAscStr = param.substring(index + 1);
+                config.setDeptOrder(Boolean.parseBoolean(deptOrderByAscStr));
+            }
+            String includePathParam = "--includePath=";
+            if (param.startsWith(maxReturnParam)) {
+                int index = param.indexOf("=");
+                //获取用户指定参数
+                String includePathStr = param.substring(index + 1);
+                String[] includePaths = includePathParam.split(";");
+                if (includePaths.length > 0) {
+                    //清理初始配置
+                    config.getIncludePath().clear();
+                }
+                for (String p : includePaths) {
+                    config.getIncludePath().add(p);
+                }
+            }
+            String excludePathParam = "--excludePath=";
+            if (param.startsWith(includePathParam)) {
+                int index = param.indexOf("=");
+                //获取用户指定参数
+                String mexcludePathStr = param.substring(index + 1);
+                String[] excludePaths=excludePathParam.split(";");
+                config.getExcludePath().clear();
+                for(String p:excludePaths){
+                    config.getExcludePath().add(p);
+                }
+            }
+        }
     }
 
     /**
@@ -65,7 +124,7 @@ public class myEverythingCmdApp {
                     }
                     //检索输入信息
                     //TODO
-                    search(manager,condition);
+                    search(manager, condition);
                     continue;
                 } else {
                     help();
@@ -108,12 +167,15 @@ public class myEverythingCmdApp {
         System.exit(0);
     }
 
-    private static void search(myEverythingManager manger,Condition condition) {
+    private static void search(myEverythingManager manger, Condition condition) {
         //统一调度器中调度search
         //manger.search(condition);
         //输出搜索结果路径
-        List<Thing> thingList=manger.search(condition);
-        for(Thing thing:thingList){
+        condition.setLimit(myEverythingConfig.getInstance().getMaxReturn());
+        condition.setOrderByAsc(myEverythingConfig.getInstance().getDeptOrder());
+        System.out.println(condition.toString());
+        List<Thing> thingList = manger.search(condition);
+        for (Thing thing : thingList) {
             System.out.println(thing.getPath());
         }
     }

@@ -2,6 +2,8 @@ package com.Dyson.everything.config;
 
 import com.Dyson.everything.core.common.FileConvertThing;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.io.File;
 import java.nio.file.FileSystem;
@@ -16,6 +18,7 @@ import java.util.function.Consumer;
  * @date 2019/2/15 19:35
  */
 @Getter
+@ToString
 public class myEverythingConfig {
     private static volatile myEverythingConfig config;
     /**
@@ -30,10 +33,19 @@ public class myEverythingConfig {
     /**
      * H2数据库文件路径
      */
-    private String h2IndexPath=System.getProperty("user.dir")+ File.separator+"my_everything";
+    private String h2IndexPath = System.getProperty("user.dir") + File.separator + "my_everything";
+
     /**
-     * 检索最大返回值数量
+     * 设置默认检索最大返回值数量
      */
+    @Setter
+    private Integer maxReturn = 30;
+    /**
+     * 默认设置排序为升序方式
+     * order by dept asc limit 30 offset
+     */
+    @Setter
+    private Boolean deptOrder = true;
 
     private myEverythingConfig() {
 
@@ -68,6 +80,7 @@ public class myEverythingConfig {
 
     /**
      * 取得实例化对象
+     *
      * @return
      */
     public static myEverythingConfig getInstance() {
