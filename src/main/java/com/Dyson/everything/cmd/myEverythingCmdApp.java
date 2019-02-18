@@ -5,6 +5,7 @@ import com.Dyson.everything.core.model.Condition;
 import com.Dyson.everything.core.model.Thing;
 import com.Dyson.everything.core.search.myEverythingManager;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
@@ -43,7 +44,9 @@ public class myEverythingCmdApp {
      * 如果用户指定参数格式不正确，使用默认值即可
      * @param args
      */
+    //--includePath=dys fs  sada --in
     private static void parseParams(String[] args) {
+
         myEverythingConfig config = myEverythingConfig.getInstance();
         for (String param : args) {
             String maxReturnParam = "--maxReturn=";
@@ -107,9 +110,11 @@ public class myEverythingCmdApp {
             //处理方式:将输入的字符串按照空格截断并存入到字符串数组中
             //按照规定处理格式 search fileName fileType 进行处理
             if (input.startsWith("search")) {
-                String[] values = input.split(" ");
+               // String[] values = input.split(" ");
+                //处理查找目录存在空格情况
+                String [] values=input.split("\\\"");
                 if (values.length >= 2) {
-                    if (!values[0].equals("search")) {
+                    if (!values[0].startsWith("search")) {
                         help();
                         continue;
                     }
@@ -119,7 +124,11 @@ public class myEverythingCmdApp {
                     condition.setName(values[1]);
                     //设置检索信息类型
                     if (values.length >= 3) {
-                        condition.setFileType(values[2].toUpperCase());
+                        String [] valueType=values[2].trim().split(" ");
+                        valueType[0].replace(" ","");
+                        if(valueType[0].length()>0){
+                            condition.setFileType(valueType[0].toUpperCase());
+                        }
                     }
                     //检索输入信息
                     //TODO
@@ -138,6 +147,7 @@ public class myEverythingCmdApp {
                     quit();
                     return;
                 case "index":
+
                     index(manager);
                     break;
                 default:
@@ -151,13 +161,19 @@ public class myEverythingCmdApp {
     }
 
     private static void index(myEverythingManager manager) {
-        //通过匿名创建线程
         //方法引用
+        System.out.println("Ready to start indexing, please wait...");
+        try {
+            sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //通过匿名创建线程
         new Thread(manager::buildIndex).start();
     }
 
     private static void quit() {
-        System.out.println("正在退出...");
+        System.out.println("Exiting the program...");
         try {
             sleep(1000);
         } catch (InterruptedException e) {
@@ -184,7 +200,6 @@ public class myEverythingCmdApp {
         System.out.println("退出：quit");
         System.out.println("帮助：help");
         System.out.println("索引：index");
-        System.out.println("搜索：search <name> [<fileType>]");
+        System.out.println("搜索：search [\"name\"] [<fileType>]");
     }
-
 }
