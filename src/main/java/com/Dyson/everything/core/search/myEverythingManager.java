@@ -1,6 +1,7 @@
 package com.Dyson.everything.core.search;
 
 import com.Dyson.everything.config.myEverythingConfig;
+import com.Dyson.everything.core.common.HandlePath;
 import com.Dyson.everything.core.dao.DataSourceFactory;
 import com.Dyson.everything.core.dao.FileIndexDao;
 import com.Dyson.everything.core.dao.imp.FileIndexDaoImpl;
@@ -11,10 +12,13 @@ import com.Dyson.everything.core.interceptor.impl.FileIndexInterceptor;
 import com.Dyson.everything.core.interceptor.impl.ThingClearInterceptor;
 import com.Dyson.everything.core.model.Condition;
 import com.Dyson.everything.core.model.Thing;
+import com.Dyson.everything.core.monitor.FileWatch;
+import com.Dyson.everything.core.monitor.impl.FileWatchImpl;
 import com.Dyson.everything.core.search.impl.FileSearchImpl;
 
 import javax.sql.DataSource;
 import java.io.File;
+import java.util.EventListener;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -45,6 +49,10 @@ public class myEverythingManager {
     private Thread backgroundClearThread=new Thread(this.thingClearInterceptor);
     private AtomicBoolean backgroundClearThreadStatus=new AtomicBoolean(false);
 
+    /**
+     * 文件监控
+     */
+    private FileWatch fileWatch;
     public myEverythingManager() {
         this.initComponent();
     }
@@ -66,14 +74,14 @@ public class myEverythingManager {
         this.backgroundClearThread.setName("Thing-thred-clear");
         //清理线程设置成守护线程
         this.backgroundClearThread.setDaemon(true);
+        //文件监控对象
+        this.fileWatch =new FileWatchImpl(fileIndexDao);
     }
     //检查并初始化数据库
     private void initOrResetDatabase() {
         //获取当前目录
         //TODO
-
         DataSourceFactory.initDatabase();
-
     }
 
     //获取实例化对象
@@ -163,4 +171,36 @@ public class myEverythingManager {
             System.out.println("BackgroundClearThrad has start");
         }
     }
+
+    /**
+     * 启动文件系统监听
+     */
+    public void startFileSystemMonitor(){
+        myEverythingConfig config=myEverythingConfig.getInstance();
+        HandlePath handlePath=new HandlePath();
+        handlePath.setIncludePath(config.getIncludePath());
+        handlePath.setExcludePath(config.getExcludePath());
+        this.fileWatch.monitor(handlePath);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("文件系统监控启动");
+                fileWatch.start();
+            }
+        }).start();
+    }
+
+
+
+    /**
+     * 历史记录
+     */
+    public void starthistoryRecord(){
+
+    }
+
+    public void buildHistory() {
+
+    }
+
 }

@@ -5,9 +5,9 @@ import com.Dyson.everything.core.model.Condition;
 import com.Dyson.everything.core.model.Thing;
 import com.Dyson.everything.core.search.myEverythingManager;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static java.lang.Thread.sleep;
 
@@ -18,10 +18,11 @@ import static java.lang.Thread.sleep;
 public class myEverythingCmdApp {
     //阻塞式获取输入
     private static Scanner scanner = new Scanner(System.in);
-
+    private static Queue<String> historyQueue = new ConcurrentLinkedQueue<>();
     public static void main(String[] args) {
         //解析用户参数
         parseParams(args);
+
 
         //欢迎界面
         welcome();
@@ -29,7 +30,7 @@ public class myEverythingCmdApp {
         //通过统一调度器调度
         //减少耦合，方便代码修改与管理
         myEverythingManager manager = myEverythingManager.getInstance();
-
+        manager.startFileSystemMonitor();
         //启动后台清理线程
         manager.startbackgroundClearThread();
         //交互式
@@ -42,9 +43,9 @@ public class myEverythingCmdApp {
     /**
      * 处理参数
      * 如果用户指定参数格式不正确，使用默认值即可
+     *
      * @param args
      */
-    //--includePath=dys fs  sada --in
     private static void parseParams(String[] args) {
 
         myEverythingConfig config = myEverythingConfig.getInstance();
@@ -88,9 +89,9 @@ public class myEverythingCmdApp {
                 int index = param.indexOf("=");
                 //获取用户指定参数
                 String mexcludePathStr = param.substring(index + 1);
-                String[] excludePaths=excludePathParam.split(";");
+                String[] excludePaths = excludePathParam.split(";");
                 config.getExcludePath().clear();
-                for(String p:excludePaths){
+                for (String p : excludePaths) {
                     config.getExcludePath().add(p);
                 }
             }
@@ -101,18 +102,25 @@ public class myEverythingCmdApp {
      * 处理控制台输入
      */
     private static void interactive(myEverythingManager manager) {
+
+
         //不断获取处理命令，检索
         while (true) {
             System.out.print("Everything ->");
             //不断读取输入Enter之前的字符
+
             String input = scanner.nextLine();
+            //添加输入信息
+            if (!input.startsWith("history")) {
+                historyQueue.add(input);
+            }
             //优先处理search字符串
             //处理方式:将输入的字符串按照空格截断并存入到字符串数组中
             //按照规定处理格式 search fileName fileType 进行处理
             if (input.startsWith("search")) {
-               // String[] values = input.split(" ");
+                // String[] values = input.split(" ");
                 //处理查找目录存在空格情况
-                String [] values=input.split("\\\"");
+                String[] values = input.split("\\\"");
                 if (values.length >= 2) {
                     if (!values[0].startsWith("search")) {
                         help();
@@ -124,15 +132,15 @@ public class myEverythingCmdApp {
                     condition.setName(values[1]);
                     //设置检索信息类型
                     if (values.length >= 3) {
-                        String [] valueType=values[2].trim().split(" ");
-                        valueType[0].replace(" ","");
-                        if(valueType[0].length()>0){
+                        String[] valueType = values[2].trim().split(" ");
+                        valueType[0].replace(" ", "");
+                        if (valueType[0].length() > 0) {
                             condition.setFileType(valueType[0].toUpperCase());
                         }
                     }
                     //检索输入信息
                     //TODO
-                    search(manager,condition);
+                    search(manager, condition);
                     continue;
                 } else {
                     help();
@@ -147,13 +155,19 @@ public class myEverythingCmdApp {
                     quit();
                     return;
                 case "index":
-
                     index(manager);
+                    break;
+                case "history":
+                    history(manager);
                     break;
                 default:
                     help();
             }
         }
+    }
+
+    private static void history(myEverythingManager manager) {
+        new Thread(manager::buildHistory).start();
     }
 
     private static void welcome() {

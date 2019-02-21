@@ -136,7 +136,7 @@ public class FileIndexDaoImpl implements FileIndexDao {
             //3.准备命令
             statement = connection.prepareStatement(sql);
             //4.采用预编译命令，需要设置参数
-            statement.setString(1, thing.getPath());
+            statement.setString(1,thing.getPath());
             //将枚举名称存储进去
             //5.执行更新命令
             statement.executeUpdate();

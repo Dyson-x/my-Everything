@@ -1,6 +1,7 @@
 package com.Dyson.everything.core.interceptor;
 
 import java.io.File;
+import java.util.HashMap;
 
 /**
  * 监视器,专门用作处理结果集，
@@ -12,4 +13,5 @@ import java.io.File;
 @FunctionalInterface
 public interface FileInterceptor {
     void apply(File file);
+
 }
